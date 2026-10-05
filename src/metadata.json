@@ -1,0 +1,9 @@
+{
+  "uuid": "song-recognizer@jackicus",
+  "name": "Song Recognizer",
+  "description": "Recognize the song your computer is playing, from the top bar, with SongRec.",
+  "settings-schema": "org.gnome.shell.extensions.song-recognizer",
+  "shell-version": [ "50" ],
+  "url": "https://github.com/Jackicus/GNOME-Song-Recognizer",
+  "version-name": "0.1"
+}
