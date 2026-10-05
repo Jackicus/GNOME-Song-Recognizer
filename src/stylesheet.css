@@ -1,0 +1,48 @@
+.song-recognizer-header {
+    padding: 1em 0 0.75em;
+}
+
+.song-recognizer-record {
+    width: 4.5em;
+    height: 4.5em;
+    border-radius: 999px;
+    background-color: -st-accent-color;
+    color: -st-accent-fg-color;
+}
+
+.song-recognizer-record:hover {
+    background-color: st-lighten(-st-accent-color, 8%);
+}
+
+.song-recognizer-record:active {
+    background-color: st-darken(-st-accent-color, 8%);
+}
+
+.song-recognizer-record:focus {
+    box-shadow: inset 0 0 0 2px st-transparentize(-st-accent-fg-color, 0.4);
+}
+
+.song-recognizer-record StIcon {
+    icon-size: 2em;
+}
+
+.song-recognizer-status {
+    margin-top: 0.75em;
+}
+
+.song-recognizer-latest,
+.song-recognizer-song {
+    spacing: 0.75em;
+}
+
+.song-recognizer-title {
+    font-weight: bold;
+}
+
+.song-recognizer-busy {
+    color: -st-accent-color;
+}
+
+.song-recognizer-remove {
+    background-color: transparent;
+}
