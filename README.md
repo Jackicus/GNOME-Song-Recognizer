@@ -2,7 +2,7 @@
 
 Recognize the song your computer is playing, from the top bar, with SongRec.
 
-Click the note in the top bar, then the round button: it listens to what your computer is
+Click the note in the top bar (or in quick settings, beside the screenshot button), then the round button: it listens to what your computer is
 playing for a few seconds and shows the song, with its cover. Every song it finds is kept in
 a history under it, each with a button to remove it.
 
@@ -41,10 +41,14 @@ To update, pull and `make install` again; to remove it, `make uninstall`.
 
 ## Preferences
 
+- **Location**: the top bar, with the history in its menu, or a round button in quick
+  settings beside the screenshot button, lit while it listens, with every result as a
+  notification.
 - **Use the Microphone**: listen through the microphone instead of the computer's sound.
 - **Listening Time**: how many seconds are recorded (4–20, 10 by default).
 - **Clicking a Song**: open its Shazam page, or copy its title and artist.
-- **Notify**: show the song in a notification when the menu was closed while listening.
+- **Notify**: show the song in a notification when the menu is closed (always, in quick
+  settings).
 - **Songs Kept** and **Clear History**.
 
 ## Troubleshooting

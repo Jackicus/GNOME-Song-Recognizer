@@ -5,12 +5,26 @@ import Gtk from 'gi://Gtk';
 
 import {ExtensionPreferences} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
-const CLICK_ACTIONS = ['open', 'copy'];
+// A combo row over a string key with <choices>, in the order of `values`.
+function choiceRow(settings, key, title, values, labels) {
+    const row = new Adw.ComboRow({
+        title,
+        model: Gtk.StringList.new(labels),
+        selected: values.indexOf(settings.get_string(key)),
+    });
+    row.connect('notify::selected', () => settings.set_string(key, values[row.selected]));
+    return row;
+}
 
 export default class SongRecognizerPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         const settings = this.getSettings();
         const page = new Adw.PreferencesPage();
+
+        const button = new Adw.PreferencesGroup({title: 'Button'});
+        button.add(choiceRow(settings, 'location', 'Location', ['panel', 'quick-settings'],
+            ['Top Bar, with History', 'Quick Settings, beside Screenshot']));
+        page.add(button);
 
         const listening = new Adw.PreferencesGroup({title: 'Listening'});
         const microphone = new Adw.SwitchRow({
@@ -27,17 +41,11 @@ export default class SongRecognizerPreferences extends ExtensionPreferences {
         page.add(listening);
 
         const results = new Adw.PreferencesGroup({title: 'Results'});
-        const click = new Adw.ComboRow({
-            title: 'Clicking a Song',
-            model: Gtk.StringList.new(['Opens Its Shazam Page', 'Copies Its Title and Artist']),
-            selected: CLICK_ACTIONS.indexOf(settings.get_string('click-action')),
-        });
-        click.connect('notify::selected',
-            () => settings.set_string('click-action', CLICK_ACTIONS[click.selected]));
-        results.add(click);
+        results.add(choiceRow(settings, 'click-action', 'Clicking a Song', ['open', 'copy'],
+            ['Opens Its Shazam Page', 'Copies Its Title and Artist']));
         const notify = new Adw.SwitchRow({
             title: 'Notify',
-            subtitle: 'When the menu was closed while listening',
+            subtitle: 'When the menu is closed. In quick settings, always.',
         });
         settings.bind('notify', notify, 'active', Gio.SettingsBindFlags.DEFAULT);
         results.add(notify);

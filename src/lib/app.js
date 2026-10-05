@@ -12,6 +12,7 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import {isInstalled, recognize} from './recognizer.js';
 
 const ICON = 'audio-x-generic-symbolic';
+const READY = 'Recognize the Song Playing';
 const DIM_OPACITY = 160;
 // A breathing pulse while listening: a state, not a transition, so slower than the shell's motion.
 const PULSE_MS = 900;
@@ -62,10 +63,9 @@ class SongRecognizerSongItem extends PopupMenu.PopupBaseMenuItem {
 
 const SongRecognizerIndicator = GObject.registerClass(
 class SongRecognizerIndicator extends PanelMenu.Button {
-    _init(extension, settings) {
-        super._init(0.5, extension.metadata.name);
-        this._name = extension.metadata.name;
-        this._settings = settings;
+    _init(app) {
+        super._init(0.5, app.name);
+        this._app = app;
 
         this._icon = new St.Icon({icon_name: ICON, style_class: 'system-status-icon'});
         this.add_child(this._icon);
@@ -86,7 +86,7 @@ class SongRecognizerIndicator extends PanelMenu.Button {
             x_align: Clutter.ActorAlign.CENTER,
             child: new St.Icon({icon_name: ICON}),
         });
-        this._button.connect('clicked', () => this._toggle());
+        this._button.connect('clicked', () => app.toggle());
         this._status = new St.Label({
             style_class: 'song-recognizer-status',
             x_align: Clutter.ActorAlign.CENTER,
@@ -101,59 +101,19 @@ class SongRecognizerIndicator extends PanelMenu.Button {
         this._history = new PopupMenu.PopupSubMenuMenuItem('History');
         this.menu.addMenuItem(this._history);
 
-        this._settings.connectObject(
-            'changed::history', () => this._syncHistory(),
-            'changed::history-size', () => this._setHistory(this._songs()),
-            this);
-        this._setStatus();
+        app.settings.connectObject('changed::history', () => this._syncHistory(), this);
         this._syncHistory();
     }
 
-    _songs() {
-        return this._settings.get_value('history').recursiveUnpack();
+    get wantsNotification() {
+        return !this.menu.isOpen && this._app.settings.get_boolean('notify');
     }
 
-    _setHistory(songs) {
-        songs = songs.slice(0, this._settings.get_int('history-size'));
-        this._settings.set_value('history', new GLib.Variant('aa{ss}', songs));
-    }
-
-    _syncHistory() {
-        const songs = this._songs();
-        this._latest.removeAll();
-        this._history.menu.removeAll();
-        this._history.visible = songs.length > 0;
-        if (songs.length === 0)
-            return;
-
-        this._latest.addMenuItem(this._songItem(songs[0], {large: true}));
-        this._history.label.text = `History (${songs.length})`;
-        const onRemove = song => this._setHistory(this._songs().filter(s => s.time !== song.time));
-        for (const song of songs)
-            this._history.menu.addMenuItem(this._songItem(song, {onRemove}));
-    }
-
-    _songItem(song, params) {
-        const item = new SongRecognizerSongItem(song, params);
-        item.connect('activate', () => this._activate(song));
-        return item;
-    }
-
-    _activate(song) {
-        if (this._settings.get_string('click-action') === 'copy') {
-            St.Clipboard.get_default().set_text(St.ClipboardType.CLIPBOARD,
-                `${song.title} – ${song.artist}`);
-        } else {
-            Gio.AppInfo.launch_default_for_uri(song.url,
-                global.create_app_launch_context(0, -1));
-        }
-    }
-
-    _setStatus(text = isInstalled() ? 'Recognize the Song Playing' : 'Install SongRec to Recognize Songs') {
+    setStatus(text) {
         this._status.text = text;
     }
 
-    _setBusy(busy) {
+    setBusy(busy) {
         this._button.child.icon_name = busy ? 'media-playback-stop-symbolic' : ICON;
         this._button.accessible_name = busy ? 'Stop' : 'Recognize';
         if (busy) {
@@ -172,60 +132,177 @@ class SongRecognizerIndicator extends PanelMenu.Button {
         }
     }
 
-    _toggle() {
+    _syncHistory() {
+        const songs = this._app.songs();
+        this._latest.removeAll();
+        this._history.menu.removeAll();
+        this._history.visible = songs.length > 0;
+        if (songs.length === 0)
+            return;
+
+        this._latest.addMenuItem(this._songItem(songs[0], {large: true}));
+        this._history.label.text = `History (${songs.length})`;
+        for (const song of songs)
+            this._history.menu.addMenuItem(this._songItem(song, {onRemove: s => this._app.remove(s)}));
+    }
+
+    _songItem(song, params) {
+        const item = new SongRecognizerSongItem(song, params);
+        item.connect('activate', () => this._app.activate(song));
+        return item;
+    }
+});
+
+// A round button in quick settings, lit while listening; results come as notifications.
+const SongRecognizerQuickButton = GObject.registerClass(
+class SongRecognizerQuickButton extends St.Button {
+    constructor(app) {
+        super({
+            style_class: 'icon-button song-recognizer-quick',
+            can_focus: true,
+            accessible_name: 'Recognize the Song Playing',
+            child: new St.Icon({icon_name: ICON}),
+        });
+        this.connect('clicked', () => app.toggle());
+    }
+
+    get wantsNotification() {
+        return true;
+    }
+
+    setStatus() {}
+
+    setBusy(busy) {
+        this.checked = busy;
+    }
+});
+
+export class SongRecognizerApp {
+    constructor(extension) {
+        this._extension = extension;
+        this._cancellable = null;
+    }
+
+    get name() {
+        return this._extension.metadata.name;
+    }
+
+    enable() {
+        this.settings = this._extension.getSettings();
+        this.settings.connectObject(
+            'changed::location', () => this._place(),
+            'changed::history-size', () => this._setHistory(this.songs()),
+            this);
+        this._place();
+    }
+
+    disable() {
+        this.settings.disconnectObject(this);
+        this._cancellable?.cancel();
+        this._cancellable = null;
+        this._source?.destroy();
+        this._view.destroy();
+        this._view = null;
+        this.settings = null;
+    }
+
+    _place() {
+        this._view?.destroy();
+        if (this.settings.get_string('location') === 'quick-settings') {
+            this._view = new SongRecognizerQuickButton(this);
+            try {
+                // Private: quick settings' row of round buttons (docs/private-api.md).
+                const row = Main.panel.statusArea.quickSettings._system._systemItem.child;
+                const screenshot = row.get_children().find(b => b.icon_name === 'screenshooter-symbolic');
+                row.insert_child_below(this._view, screenshot ?? null);
+            } catch (e) {
+                console.error(`[Song Recognizer] No place in quick settings: ${e.message}`);
+            }
+        } else {
+            this._view = new SongRecognizerIndicator(this);
+            Main.panel.addToStatusArea(this._extension.uuid, this._view);
+        }
+        this._view.setBusy(this._cancellable !== null);
+        this._view.setStatus(READY);
+    }
+
+    songs() {
+        return this.settings.get_value('history').recursiveUnpack();
+    }
+
+    _setHistory(songs) {
+        songs = songs.slice(0, this.settings.get_int('history-size'));
+        this.settings.set_value('history', new GLib.Variant('aa{ss}', songs));
+    }
+
+    remove(song) {
+        this._setHistory(this.songs().filter(s => s.time !== song.time));
+    }
+
+    activate(song) {
+        if (this.settings.get_string('click-action') === 'copy') {
+            St.Clipboard.get_default().set_text(St.ClipboardType.CLIPBOARD,
+                `${song.title} – ${song.artist}`);
+        } else {
+            Gio.AppInfo.launch_default_for_uri(song.url,
+                global.create_app_launch_context(0, -1));
+        }
+    }
+
+    toggle() {
         if (this._cancellable) {
             this._cancellable.cancel();
             return;
         }
         if (!isInstalled()) {
-            this._setStatus();
+            this._report('SongRec Is Missing', 'Install it to recognize songs');
             return;
         }
         const cancellable = new Gio.Cancellable();
         this._cancellable = cancellable;
-        this._setBusy(true);
+        this._view.setBusy(true);
         this._listen(cancellable).catch(e => {
             if (!e.matches?.(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
                 console.error(`[Song Recognizer] ${e.message}`);
                 this._report('Recognition Failed', e.message);
             }
         }).finally(() => {
-            // A destroyed indicator has already dropped its cancellable.
+            // After disable() the cancellable has already been dropped.
             if (this._cancellable !== cancellable)
                 return;
             this._cancellable = null;
-            this._setBusy(false);
+            this._view.setBusy(false);
             if (cancellable.is_cancelled())
-                this._setStatus();
+                this._view.setStatus(READY);
         });
     }
 
     async _listen(cancellable) {
-        this._setStatus('Listening…');
+        this._view.setStatus('Listening…');
         const song = await recognize({
-            seconds: this._settings.get_int('listen-seconds'),
-            microphone: this._settings.get_boolean('microphone'),
+            seconds: this.settings.get_int('listen-seconds'),
+            microphone: this.settings.get_boolean('microphone'),
             cancellable,
-            onSearching: () => this._setStatus('Searching…'),
+            onSearching: () => this._view.setStatus('Searching…'),
         });
         if (!song) {
             this._report('No Match', 'Try again while the music is playing');
             return;
         }
-        const songs = this._songs();
+        const songs = this.songs();
         if (songs.length > 0 && songs[0].key === song.key)
             songs.shift();
         this._setHistory([song, ...songs]);
         this._report(song.title, song.artist, song);
     }
 
-    // Says it in the menu, and in a notification when the menu was closed meanwhile.
+    // Says it in the menu, and in a notification when the menu is not showing it.
     _report(title, body, song = null) {
-        this._setStatus(song ? 'Recognize the Song Playing' : `${title}. ${body}.`);
-        if (this.menu.isOpen || !this._settings.get_boolean('notify'))
+        this._view.setStatus(song ? READY : `${title}. ${body}.`);
+        if (!this._view.wantsNotification)
             return;
         if (!this._source) {
-            this._source = new MessageTray.Source({title: this._name, iconName: ICON});
+            this._source = new MessageTray.Source({title: this.name, iconName: ICON});
             this._source.connect('destroy', () => (this._source = null));
             Main.messageTray.add(this._source);
         }
@@ -237,30 +314,7 @@ class SongRecognizerIndicator extends PanelMenu.Button {
             isTransient: true,
         });
         if (song?.url)
-            notification.connect('activated', () => this._activate(song));
+            notification.connect('activated', () => this.activate(song));
         this._source.addNotification(notification);
-    }
-
-    destroy() {
-        this._cancellable?.cancel();
-        this._cancellable = null;
-        this._source?.destroy();
-        super.destroy();
-    }
-});
-
-export class SongRecognizerApp {
-    constructor(extension) {
-        this._extension = extension;
-    }
-
-    enable() {
-        this._indicator = new SongRecognizerIndicator(this._extension, this._extension.getSettings());
-        Main.panel.addToStatusArea(this._extension.uuid, this._indicator);
-    }
-
-    disable() {
-        this._indicator.destroy();
-        this._indicator = null;
     }
 }
