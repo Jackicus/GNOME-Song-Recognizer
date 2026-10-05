@@ -59,5 +59,12 @@ Kevin MacLeod's tracks on incompetech.com (CC BY) are in Shazam's catalogue.
 ## History without recognizing
 
 `$G set … history "[{'key': '1', 'title': 'T', 'artist': 'A', 'cover': '', 'url': '', 'time': '1791187280'}]"`
-fills the menu. Shots that are kept go through `gnome-ext:screenshots`, under
-`start --stand-in`, with stand-in songs only.
+fills the menu.
+
+## Screenshots
+
+`./scripts/nested.sh shots [--out DIR]` takes the README's `docs/screenshots/menu.png` and
+`quick-settings.png` (`scripts/nested.d/shots.sh`), under `start --stand-in`: invented songs
+with covers drawn by `scripts/nested.d/stand-in.sh`, and `songrec` and `pw-record` as
+stand-ins (`EXT_STAND_IN_BINS`), so nothing is recorded or sent. Without `oxipng`, strip
+them with `magick IN -strip OUT`. Then the checks in `gnome-ext:screenshots`.
