@@ -1,10 +1,11 @@
 # Song Recognizer
 
-Recognize the song your computer is playing, from the top bar, with SongRec.
+Recognize the song your computer is playing, from the top bar or quick settings, with SongRec.
 
-Click the note in the top bar (or in quick settings, beside the screenshot button), then the round button: it listens to what your computer is
+Click the note in the top bar, then the round button: it listens to what your computer is
 playing for a few seconds and shows the song, with its cover. Every song it finds is kept in
-a history under it, each with a button to remove it.
+a history under it, each with a button to remove it. In quick settings the round button sits
+beside the screenshot button and stays lit while it listens; the song comes as a notification.
 
 ## Requirements
 
@@ -20,7 +21,9 @@ Nothing is recorded until you press the button. Then it records a few seconds of
 computer's sound (or the microphone, if you choose it) into a temporary file and runs
 SongRec on it, which sends a fingerprint of that sound to Shazam's servers. The file is
 deleted straight after. Covers are loaded from Apple's image servers when the menu shows
-them. The history is kept in the extension's settings, on your computer only.
+them. The history is kept in the extension's settings, on your computer only. Clicking a
+song opens its Shazam page in your browser or, if you choose, copies its title and artist
+to the clipboard; nothing else touches the clipboard.
 
 This extension is not affiliated with Shazam or Apple. SongRec is an unofficial client.
 
@@ -35,11 +38,13 @@ make install
 ```
 
 Then log out and back in (on Wayland the shell only finds a new extension at login), and
-turn it on in Extensions.
+turn it on: `gnome-extensions enable song-recognizer@jackicus`, or in Extensions.
 
 To update, pull and `make install` again; to remove it, `make uninstall`.
 
 ## Preferences
+
+`gnome-extensions prefs song-recognizer@jackicus`, or Extensions.
 
 - **Location**: the top bar, with the history in its menu, or a round button in quick
   settings beside the screenshot button, lit while it listens, with every result as a
@@ -59,11 +64,13 @@ The extension's messages, and its preferences', are in the journal:
 journalctl -o cat --since '10 min ago' /usr/bin/gnome-shell + SYSLOG_IDENTIFIER=org.gnome.Shell.Extensions | grep -F '[Song Recognizer]'
 ```
 
-Include them in a bug report.
+Include them in a bug report. "SongRec Is Missing" in the menu means `songrec` is not on
+the shell's `PATH`: install it as above, then log out and back in.
 
 ## Development
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md). `docs/` has the private shell API the quick
+settings button relies on and how the extensions.gnome.org review is answered.
 
 ## Licence
 

@@ -19,8 +19,8 @@ const PULSE_MS = 900;
 
 function formatTime(unix) {
     const time = GLib.DateTime.new_from_unix_local(Number(unix));
-    const today = GLib.DateTime.new_now_local();
-    return time.format(time.get_ymd().join() === today.get_ymd().join() ? '%R' : '%e %b').trim();
+    const today = GLib.DateTime.new_now_local().format('%F');
+    return time.format(time.format('%F') === today ? '%R' : '%e %b').trim();
 }
 
 const SongRecognizerSongItem = GObject.registerClass(
@@ -262,7 +262,7 @@ export class SongRecognizerApp {
         this._cancellable = cancellable;
         this._view.setBusy(true);
         this._listen(cancellable).catch(e => {
-            if (!e.matches?.(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
+            if (!(e instanceof GLib.Error && e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED))) {
                 console.error(`[Song Recognizer] ${e.message}`);
                 this._report('Recognition Failed', e.message);
             }

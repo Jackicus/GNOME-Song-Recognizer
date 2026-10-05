@@ -1,7 +1,7 @@
 {
   "uuid": "song-recognizer@jackicus",
   "name": "Song Recognizer",
-  "description": "Recognize the song your computer is playing, from the top bar, with SongRec.",
+  "description": "Recognize the song your computer is playing, from the top bar or quick settings, with SongRec.\n\nNothing is recorded until you press the button. Then it records a few seconds of your computer's sound (or the microphone) with PipeWire's pw-record and runs the songrec command you installed, which sends a fingerprint of that sound to Shazam's servers and returns the song. Every song found is kept in a history, in the extension's settings. Clicking a song opens its Shazam page or, if you choose, copies its title and artist to the clipboard.\n\nNot affiliated with Shazam or Apple. SongRec is an unofficial client.",
   "settings-schema": "org.gnome.shell.extensions.song-recognizer",
   "shell-version": [ "50" ],
   "url": "https://github.com/Jackicus/GNOME-Song-Recognizer",
