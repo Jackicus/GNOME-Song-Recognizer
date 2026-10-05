@@ -2,13 +2,27 @@
 
 Recognize the song your computer is playing, from the top bar, with SongRec.
 
+Click the note in the top bar, then the round button: it listens to what your computer is
+playing for a few seconds and shows the song, with its cover. Every song it finds is kept in
+a history under it, each with a button to remove it.
+
 ## Requirements
 
-GNOME Shell 50.
+- GNOME Shell 50, on PipeWire (`pw-record`, part of PipeWire, does the recording).
+- [SongRec](https://github.com/marin-m/SongRec), whose `songrec` command does the
+  recognition. The Flatpak does not provide the command: install a native package
+  (`sudo pacman -S songrec` on Arch Linux), or see
+  [SongRec's install instructions](https://github.com/marin-m/SongRec#installation).
 
 ## Privacy and network
 
-It sends nothing anywhere and reads nothing of yours.
+Nothing is recorded until you press the button. Then it records a few seconds of your
+computer's sound (or the microphone, if you choose it) into a temporary file and runs
+SongRec on it, which sends a fingerprint of that sound to Shazam's servers. The file is
+deleted straight after. Covers are loaded from Apple's image servers when the menu shows
+them. The history is kept in the extension's settings, on your computer only.
+
+This extension is not affiliated with Shazam or Apple. SongRec is an unofficial client.
 
 ## Install
 
@@ -27,7 +41,11 @@ To update, pull and `make install` again; to remove it, `make uninstall`.
 
 ## Preferences
 
-- **Show the Indicator**: the icon in the top bar.
+- **Use the Microphone**: listen through the microphone instead of the computer's sound.
+- **Listening Time**: how many seconds are recorded (4–20, 10 by default).
+- **Clicking a Song**: open its Shazam page, or copy its title and artist.
+- **Notify**: show the song in a notification when the menu was closed while listening.
+- **Songs Kept** and **Clear History**.
 
 ## Troubleshooting
 

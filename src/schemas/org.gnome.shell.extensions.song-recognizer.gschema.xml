@@ -1,10 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
     <schema id="org.gnome.shell.extensions.song-recognizer" path="/org/gnome/shell/extensions/song-recognizer/">
-        <key name="show-indicator" type="b">
+        <key name="microphone" type="b">
+            <default>false</default>
+            <summary>Listen through the microphone</summary>
+            <description>Record the default microphone instead of the sound the computer is playing.</description>
+        </key>
+        <key name="listen-seconds" type="i">
+            <range min="4" max="20"/>
+            <default>10</default>
+            <summary>Listening time</summary>
+            <description>How many seconds are recorded for each recognition.</description>
+        </key>
+        <key name="click-action" type="s">
+            <choices>
+                <choice value="open"/>
+                <choice value="copy"/>
+            </choices>
+            <default>'open'</default>
+            <summary>What clicking a song does</summary>
+            <description>"open" opens its Shazam page; "copy" copies its title and artist.</description>
+        </key>
+        <key name="notify" type="b">
             <default>true</default>
-            <summary>Show the indicator</summary>
-            <description>Whether the extension's icon is in the top bar.</description>
+            <summary>Notify</summary>
+            <description>Show the result in a notification when the menu was closed while listening.</description>
+        </key>
+        <key name="history-size" type="i">
+            <range min="1" max="500"/>
+            <default>50</default>
+            <summary>Songs kept</summary>
+            <description>How many recognized songs the history keeps.</description>
+        </key>
+        <key name="history" type="aa{ss}">
+            <default>[]</default>
+            <summary>History</summary>
+            <description>Recognized songs, newest first: key, title, artist, cover, url and time (Unix seconds).</description>
         </key>
     </schema>
 </schemalist>
