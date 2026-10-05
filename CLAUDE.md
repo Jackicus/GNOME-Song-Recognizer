@@ -32,6 +32,7 @@ src/stylesheet.css      the record button, the song rows
 docs/private-api.md     the quick settings reach
 docs/publishing.md      how the extensions.gnome.org review is answered
 scripts/ext.conf        what the kit's scripts need to know about this extension
+scripts/nested.d/       the stand-in songs and 'nested.sh shots' (the README's screenshots)
 ```
 
 ## How a recognition runs
