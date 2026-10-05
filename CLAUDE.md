@@ -2,7 +2,8 @@
 
 Shared rules for every extension come from the GNOME-EXTENSIONS kit: `../CLAUDE.md` and `../.claude/rules/` (loaded with this file), and the `gnome-ext:*` skills. `.claude/kit.sh` pulls the kit at session start, or, with no kit beside this repository, fetches it and prints its rules into the session.
 
-A GNOME Shell extension (UUID `song-recognizer@jackicus`, `version-name` 0.1, shell 50): Recognize the song your computer is playing, from the top bar, with SongRec.
+A GNOME Shell extension (UUID `song-recognizer@jackicus`, `version-name` 0.1, shell 50):
+Recognize the song your computer is playing, from the top bar or quick settings, with SongRec.
 
 Two places, chosen by `location`. In the top bar (`panel`), a button whose menu has a round
 record button, the latest song under it, and a History expander listing every song kept,
@@ -22,13 +23,14 @@ trademark); the UI names it only where a song's Shazam page is opened. Without `
 
 ```
 src/extension.js        entry point: imports lib/app.js
+src/lib/app.js          SongRecognizerApp (recognition, history, notifications) and its two
+                        views: SongRecognizerIndicator, SongRecognizerQuickButton
+src/lib/recognizer.js   pw-record, then songrec; Gio and GLib only
 src/prefs.js            preferences (own process: Gtk and Adw only)
 src/schemas/            org.gnome.shell.extensions.song-recognizer
 src/stylesheet.css      the record button, the song rows
-src/lib/app.js          SongRecognizerApp (recognition, history, notifications) and its two
-                        views: SongRecognizerIndicator, SongRecognizerQuickButton
 docs/private-api.md     the quick settings reach
-src/lib/recognizer.js   pw-record, then songrec; Gio and GLib only
+docs/publishing.md      how the extensions.gnome.org review is answered
 scripts/ext.conf        what the kit's scripts need to know about this extension
 ```
 
@@ -53,9 +55,10 @@ scripts/ext.conf        what the kit's scripts need to know about this extension
 
 ## Settings
 
-`location` (`panel` or `quick-settings`), `microphone` (false), `listen-seconds` (10, 4–20), `click-action` (`open` the Shazam page,
-or `copy` "title – artist"), `notify` (true), `history-size` (50, 1–500; lowering it trims
-at once), `history` (`aa{ss}`, newest first: key, title, artist, cover, url, time).
+`location` (`panel` or `quick-settings`), `microphone` (false), `listen-seconds` (10,
+4–20), `click-action` (`open` the Shazam page, or `copy` "title – artist" to the
+clipboard), `notify` (true), `history-size` (50, 1–500; lowering it trims at once),
+`history` (`aa{ss}`, newest first: key, title, artist, cover, url, time).
 
 ## Design notes
 
@@ -66,6 +69,8 @@ at once), `history` (`aa{ss}`, newest first: key, title, artist, cover, url, tim
 - Secondary text is dimmed with actor opacity (`DIM_OPACITY`), so it suits light and dark menus.
 - The listening pulse is 900 ms (`PULSE_MS`), outside the shell's 100–250 ms: it is a
   state that repeats while listening, not a transition.
+- `metadata.json`'s description declares the clipboard and what goes to Shazam, as the
+  review guidelines require; README's opening and Privacy sections say the same.
 
 ## Verifying
 
