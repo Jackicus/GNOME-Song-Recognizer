@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
     <schema id="org.gnome.shell.extensions.song-recognizer" path="/org/gnome/shell/extensions/song-recognizer/">
+        <key name="location" type="s">
+            <choices>
+                <choice value="panel"/>
+                <choice value="quick-settings"/>
+            </choices>
+            <default>'panel'</default>
+            <summary>Where the button is</summary>
+            <description>"panel": a top-bar button with a menu and the history; "quick-settings": a round button beside quick settings' screenshot button, with results as notifications.</description>
+        </key>
         <key name="microphone" type="b">
             <default>false</default>
             <summary>Listen through the microphone</summary>

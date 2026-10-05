@@ -26,6 +26,9 @@ In zsh, `$G` does not word-split: write the command out.
   (1300, 255) with one song shown; it expands in place, and each song's × is at the right
   edge, about x 1502.
 
+- **In quick settings** (`location` `quick-settings`): open them at about (1540, 16); the
+  button is first in the top row, about (1261, 72). Changing `location` moves it at once.
+
 ## Before clicking
 
 - **Set `click-action` to `copy`** in the nested settings: `open` launches a browser on the

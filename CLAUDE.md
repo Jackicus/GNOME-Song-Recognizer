@@ -4,8 +4,11 @@ Shared rules for every extension come from the GNOME-EXTENSIONS kit: `../CLAUDE.
 
 A GNOME Shell extension (UUID `song-recognizer@jackicus`, `version-name` 0.1, shell 50): Recognize the song your computer is playing, from the top bar, with SongRec.
 
-One top-bar button. Its menu has a round record button, the latest song under it, and a
-History expander listing every song kept, each with a button to remove it.
+Two places, chosen by `location`. In the top bar (`panel`), a button whose menu has a round
+record button, the latest song under it, and a History expander listing every song kept,
+each with a button to remove it. In quick settings (`quick-settings`), a round button just
+before the screenshot button, lit (`checked`) while listening whether the panel is open or
+not; every result there is a notification. The history is kept in both.
 
 ## The rule the design hangs off
 
@@ -22,7 +25,9 @@ src/extension.js        entry point: imports lib/app.js
 src/prefs.js            preferences (own process: Gtk and Adw only)
 src/schemas/            org.gnome.shell.extensions.song-recognizer
 src/stylesheet.css      the record button, the song rows
-src/lib/app.js          SongRecognizerApp; the indicator, its menu and the notification
+src/lib/app.js          SongRecognizerApp (recognition, history, notifications) and its two
+                        views: SongRecognizerIndicator, SongRecognizerQuickButton
+docs/private-api.md     the quick settings reach
 src/lib/recognizer.js   pw-record, then songrec; Gio and GLib only
 scripts/ext.conf        what the kit's scripts need to know about this extension
 ```
@@ -37,21 +42,25 @@ scripts/ext.conf        what the kit's scripts need to know about this extension
   matched (`key`, `title`, `subtitle` is the artist, `images.coverart`, `url`), no `track`
   when not. Its `recognize` subcommand exits 0 on errors and cannot name the default
   monitor, so it is not used.
+- The app owns the recognition, so moving the button mid-recognition keeps it. A view has
+  `setBusy()`, `setStatus()` (a no-op on the quick button) and `wantsNotification`.
 - One `Gio.Cancellable` per recognition: the record button stops it, SIGINT to `pw-record`
-  and `force_exit()` to `songrec`. Destroying the indicator cancels it and drops it, and the
+  and `force_exit()` to `songrec`. `disable()` cancels it and drops it, and the
   recognition's `finally` touches the UI only while its cancellable is still the current one.
-- A result goes to the front of `history` (the same `key` as the newest replaces it) and,
-  when the menu has been closed meanwhile and `notify` is on, into a transient notification
-  with the cover.
+- A result goes to the front of `history` (the same `key` as the newest replaces it) and
+  into a transient notification with the cover when the view wants one: the top bar's when
+  its menu is closed and `notify` is on, the quick button's always.
 
 ## Settings
 
-`microphone` (false), `listen-seconds` (10, 4–20), `click-action` (`open` the Shazam page,
+`location` (`panel` or `quick-settings`), `microphone` (false), `listen-seconds` (10, 4–20), `click-action` (`open` the Shazam page,
 or `copy` "title – artist"), `notify` (true), `history-size` (50, 1–500; lowering it trims
 at once), `history` (`aa{ss}`, newest first: key, title, artist, cover, url, time).
 
 ## Design notes
 
+- The quick button is the shell's `icon-button`, lit in the accent when checked as a quick
+  toggle is (the theme's own checked `icon-button` is a grey).
 - Covers are `Gio.FileIcon`s on the `https://` URL. St loads them through GVfs and caches
   them for the session; nothing is downloaded to disk.
 - Secondary text is dimmed with actor opacity (`DIM_OPACITY`), so it suits light and dark menus.

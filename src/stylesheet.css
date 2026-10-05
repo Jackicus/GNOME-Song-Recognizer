@@ -46,3 +46,9 @@
 .song-recognizer-remove {
     background-color: transparent;
 }
+
+.song-recognizer-quick:checked,
+.song-recognizer-quick:checked:hover {
+    background-color: -st-accent-color;
+    color: -st-accent-fg-color;
+}
