@@ -75,8 +75,7 @@ clipboard), `notify` (true), `history-size` (50, 1–500; lowering it trims at o
 
 ## Verifying
 
-`make check` (ESLint, the schema, and `size` against the budget of 600 lines in
-`scripts/ext.conf`: one menu, its preferences and two subprocesses; CI runs it). Anything
+`make check` (ESLint, the schema, and `size`; CI runs it). Anything
 visible is seen in the nested shell (`gnome-ext:nested-shell`, then this repository's
 `drive-extension` skill, which has a stand-in `pw-record` for a real match without playing
 sound on the machine).
