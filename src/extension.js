@@ -1,10 +1,10 @@
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 
-import {SongRecognizerApp} from './lib/app.js';
+import {SongRecButtonApp} from './lib/app.js';
 
-export default class SongRecognizerExtension extends Extension {
+export default class SongRecButtonExtension extends Extension {
     enable() {
-        this._app = new SongRecognizerApp(this);
+        this._app = new SongRecButtonApp(this);
         this._app.enable();
     }
 

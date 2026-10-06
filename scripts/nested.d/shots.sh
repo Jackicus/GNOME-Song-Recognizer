@@ -1,15 +1,13 @@
 #   ./scripts/nested.sh shots [--out DIR]
 #                                     start a stand-in nested shell (headless), photograph
-#                                     the menu with its history and the quick settings
-#                                     button into docs/screenshots/ (or DIR), and stop it
+#                                     quick settings with the pill's history open into
+#                                     docs/screenshots/ (or DIR), and stop it
 #
 
-# Click points on a 1600x900 monitor, measured with the driver's recording indicator in the bar
-# (it shifts the buttons left of it). Re-measure with 'start --stand-in --headless' and
-# 'do "click 1383 16" "shot FILE 0 0 1600 36"'.
-SHOTS_BUTTON="1383 16"
-SHOTS_HISTORY="1300 255"
+# Click points on a 1600x900 stand-in monitor, measured with the driver's recording indicator in the bar.
+# Re-measure with 'start --stand-in --headless' and 'do "click 1540 16" "shot FILE 1000 0 600 900"'.
 SHOTS_QUICK_SETTINGS="1540 16"
+SHOTS_PILL_MENU="1556 290"
 
 cmd_shots() {
     local out="$REPO_DIR/docs/screenshots" status=0
@@ -51,14 +49,8 @@ shots_take() {
     shots_set click-action copy || return 1
     shots_set history "$(stand_in_history)" || return 1
 
-    info "Photographing the menu..."
-    shots_do "click $SHOTS_BUTTON" "wait 1" "click $SHOTS_HISTORY" "wait 1" || return 1
-    shots_do "wait 6" "shot $out/menu.png 1200 0 400 600" || return 1
-    shots_do "key Escape" || return 1
-
     info "Photographing quick settings..."
-    shots_set location quick-settings || return 1
-    shots_do "click $SHOTS_QUICK_SETTINGS" "wait 1" || return 1
-    shots_do "wait 6" "shot $out/quick-settings.png 1170 0 430 130" || return 1
+    shots_do "click $SHOTS_QUICK_SETTINGS" "wait 1" "click $SHOTS_PILL_MENU" "wait 1" || return 1
+    shots_do "wait 6" "shot $out/quick-settings.png 1180 30 420 755" || return 1
     shots_do "key Escape" || return 1
 }
