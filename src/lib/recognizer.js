@@ -7,10 +7,16 @@ Gio._promisify(Gio.Subprocess.prototype, 'communicate_utf8_async');
 const SIGINT = 2;
 
 // pw-record has no length option: it is stopped with SIGINT, which makes it finish the WAV header.
-async function record(path, seconds, microphone, cancellable) {
-    const argv = ['pw-record', '--rate', '16000', '--channels', '1', path];
-    if (!microphone)
-        argv.splice(1, 0, '-P', '{ stream.capture.sink=true }');
+// `device` is '' for the default output's sound, 'microphone' for the default input,
+// an output's node name with '.monitor' for its sound, or an input's node name.
+async function record(path, seconds, device, cancellable) {
+    const argv = ['pw-record', '--rate', '16000', '--channels', '1'];
+    const monitor = device === '' || device.endsWith('.monitor');
+    if (monitor)
+        argv.push('-P', '{ stream.capture.sink=true }');
+    if (device !== '' && device !== 'microphone')
+        argv.push('--target', monitor ? device.slice(0, -'.monitor'.length) : device);
+    argv.push(path);
     const proc = Gio.Subprocess.new(argv, Gio.SubprocessFlags.STDERR_SILENCE);
     const stop = () => proc.send_signal(SIGINT);
     let timer = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, seconds, () => {
@@ -43,13 +49,13 @@ export function isInstalled() {
     return GLib.find_program_in_path('songrec') !== null;
 }
 
-// Records the computer's sound (or the microphone) and asks SongRec what it is.
+// Records the chosen device and asks SongRec what it is.
 // Resolves to a history entry, or null when nothing matched.
-export async function recognize({seconds, microphone, cancellable, onSearching}) {
-    const [file, stream] = Gio.File.new_tmp('song-recognizer-XXXXXX.wav');
+export async function recognize({seconds, device, cancellable, onSearching}) {
+    const [file, stream] = Gio.File.new_tmp('songrec-button-XXXXXX.wav');
     stream.close(null);
     try {
-        await record(file.get_path(), seconds, microphone, cancellable);
+        await record(file.get_path(), seconds, device, cancellable);
         cancellable.set_error_if_cancelled();
         onSearching();
         const {track} = await match(file.get_path(), cancellable);

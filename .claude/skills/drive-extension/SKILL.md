@@ -1,17 +1,17 @@
 ---
 name: drive-extension
-description: See Song Recognizer in a throwaway nested GNOME Shell - its menu, a recognition, the history and its preferences - and take screenshots of it. Use whenever a change to it must be seen or needs a fresh shell start (extension.js, metadata.json, the schema).
+description: See SongRec Button in a throwaway nested GNOME Shell - its quick settings pill, a recognition, the history and its preferences - and take screenshots of it. Use whenever a change to it must be seen or needs a fresh shell start (extension.js, metadata.json, the schema).
 ---
 
-# Driving Song Recognizer in a nested shell
+# Driving SongRec Button in a nested shell
 
 **Read `gnome-ext:nested-shell` first**: the loop (`start`, `do`, `reload`, `stop`), the
-steps and its settings are there. This is what is particular to Song Recognizer.
+steps and its settings are there. This is what is particular to SongRec Button.
 
 ```bash
-G="./scripts/nested.sh run timeout 5 gsettings --schemadir src/schemas"   # then: $G set org.gnome.shell.extensions.song-recognizer KEY VALUE
-./scripts/nested.sh start --headless     # Song Recognizer is ACTIVE when it returns
-./scripts/nested.sh do "click 1383 16" "wait 1" "shot $S/menu.png 1000 0 600 320"
+G="./scripts/nested.sh run timeout 5 gsettings --schemadir src/schemas"   # then: $G set org.gnome.shell.extensions.songrec-button KEY VALUE
+./scripts/nested.sh start --headless     # SongRec Button is ACTIVE when it returns
+./scripts/nested.sh do "click 1540 16" "wait 1" "click 1557 276" "wait 1" "shot $S/menu.png 1100 0 500 600"
 ./scripts/nested.sh stop
 ```
 
@@ -19,21 +19,18 @@ In zsh, `$G` does not word-split: write the command out.
 
 ## Where things are (1600x900, one monitor)
 
-- **The button**: the note icon left of the screen-sharing indicator, about (1383, 16).
-- **The record button**: centred under it, about (1383, 80), with the menu open. It turns
-  into a stop button while listening.
-- **The latest song**: under the status line. **History (N)**: the row below it, about
-  (1300, 255) with one song shown; it expands in place, and each song's × is at the right
-  edge, about x 1502.
-
-- **In quick settings** (`location` `quick-settings`): open them at about (1540, 16); the
-  button is first in the top row, about (1261, 72). Changing `location` moves it at once.
+- **Quick settings**: open them at about (1540, 16). A `do` that ends with them open leaves
+  them open for the next, so a second click there closes them.
+- **The pill**: "SongRec", bottom right of the toggles, about (1420, 276); clicking it
+  starts and stops a recognition. **Its arrow**, about (1557, 276), opens the history
+  below it; each song's × is at its right edge, about x 1532, and Settings is last.
+- **While listening** a note icon shows in the top bar, left of the network icon.
 
 ## Before clicking
 
 - **Set `click-action` to `copy`** in the nested settings: `open` launches a browser on the
   real desktop.
-- **A recognition is real**: `pw-record` records the machine's own output (or microphone)
+- **A recognition is real**: `pw-record` records the machine's own output (or the `device` chosen)
   and SongRec sends its fingerprint to Shazam. With nothing playing it is "No Match".
 
 ## A real match without playing sound
@@ -54,17 +51,21 @@ chmod +x $S/bin/pw-record
 ./scripts/nested.sh stop && PATH=$S/bin:$PATH ./scripts/nested.sh start
 ```
 
+Without reaching Shazam at all, put a stand-in `songrec` beside it that prints a match
+(`echo '{"track": {"key": "9", "title": "T", "subtitle": "A", "url": "", "images": {}}}'`);
+a `pw-record` that writes `"$@"` to a file shows the arguments a `device` gives.
+
 Kevin MacLeod's tracks on incompetech.com (CC BY) are in Shazam's catalogue.
 
 ## History without recognizing
 
 `$G set … history "[{'key': '1', 'title': 'T', 'artist': 'A', 'cover': '', 'url': '', 'time': '1791187280'}]"`
-fills the menu.
+fills the history.
 
 ## Screenshots
 
-`./scripts/nested.sh shots [--out DIR]` takes the README's `docs/screenshots/menu.png` and
-`quick-settings.png` (`scripts/nested.d/shots.sh`), under `start --stand-in`: invented songs
+`./scripts/nested.sh shots [--out DIR]` takes the README's
+`docs/screenshots/quick-settings.png` (`scripts/nested.d/shots.sh`), under `start --stand-in`: invented songs
 with covers drawn by `scripts/nested.d/stand-in.sh`, and `songrec` and `pw-record` as
 stand-ins (`EXT_STAND_IN_BINS`), so nothing is recorded or sent. Without `oxipng`, strip
 them with `magick IN -strip OUT`. Then the checks in `gnome-ext:screenshots`.

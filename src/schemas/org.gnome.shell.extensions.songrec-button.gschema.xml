@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+    <schema id="org.gnome.shell.extensions.songrec-button" path="/org/gnome/shell/extensions/songrec-button/">
+        <key name="device" type="s">
+            <default>''</default>
+            <summary>Audio input</summary>
+            <description>What is recorded: "" the default output's sound, "microphone" the default input, a PipeWire output's node name followed by ".monitor" for its sound, or an input's node name.</description>
+        </key>
+        <key name="listen-seconds" type="i">
+            <range min="4" max="20"/>
+            <default>10</default>
+            <summary>Listening time</summary>
+            <description>How many seconds are recorded for each recognition.</description>
+        </key>
+        <key name="notify" type="b">
+            <default>true</default>
+            <summary>Notifications</summary>
+            <description>Show each result in a notification.</description>
+        </key>
+        <key name="no-duplicates" type="b">
+            <default>false</default>
+            <summary>No duplicates</summary>
+            <description>A song found again moves to the top of the history instead of being added twice.</description>
+        </key>
+        <key name="click-action" type="s">
+            <choices>
+                <choice value="open"/>
+                <choice value="search"/>
+                <choice value="copy"/>
+            </choices>
+            <default>'open'</default>
+            <summary>What clicking a song does</summary>
+            <description>"open" opens its Shazam page, "search" opens the search link with its title and artist, "copy" copies its title and artist.</description>
+        </key>
+        <key name="search-url" type="s">
+            <default>'https://www.youtube.com/results?search_query='</default>
+            <summary>Search link</summary>
+            <description>The address the "search" click action opens, followed by the song's title and artist.</description>
+        </key>
+        <key name="history-size" type="i">
+            <range min="1" max="500"/>
+            <default>50</default>
+            <summary>Songs kept</summary>
+            <description>How many recognized songs the history keeps.</description>
+        </key>
+        <key name="history" type="aa{ss}">
+            <default>[]</default>
+            <summary>History</summary>
+            <description>Recognized songs, newest first: key, title, artist, cover, url and time (Unix seconds).</description>
+        </key>
+    </schema>
+</schemalist>
