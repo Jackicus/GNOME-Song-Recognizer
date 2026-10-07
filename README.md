@@ -79,8 +79,11 @@ Shazam client.
 
 ## Troubleshooting
 
-- **"SongRec Is Missing"**: the `songrec` command isn't installed. Install it as above, then
-  log out and back in.
+- **"SongRec Is Missing"**: the `songrec` command isn't installed. Install it as above and
+  click again.
+- **"Recognition Failed"**: the notification says what failed. A message that starts with
+  `pw-record:` means the recording itself failed: check that PipeWire is running and that
+  the **Audio Input** chosen is still connected.
 - **"No Match"**: make sure the music is playing on this computer, or choose **Microphone**
   as the **Audio Input** for sound from another device. With several outputs, pick the
   one the music plays through. A longer **Listening Time** helps
@@ -92,11 +95,20 @@ The extension's messages are in the journal. Include them in a bug report:
 journalctl -f -o cat /usr/bin/gnome-shell | grep -i 'songrec button'
 ```
 
+The preferences run in a process of their own:
+
+```bash
+journalctl -f -o cat SYSLOG_IDENTIFIER=org.gnome.Shell.Extensions
+```
+
+From a clone, `make status` says whether the extension is installed and enabled, and
+`make logs` shows its messages.
+
 ## Development
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). `make link` runs it from the clone, `make check`
 lints it, and `./scripts/nested.sh shots` retakes the screenshots. `docs/` covers the
-extensions.gnome.org review.
+extensions.gnome.org review and the shell internals it relies on.
 
 ## Licence
 
