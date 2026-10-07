@@ -74,7 +74,6 @@ class SongRecButtonHistory extends PopupMenu.PopupMenuSection {
     }
 }
 
-// The pill: clicking it listens (and stops listening), its menu holds the history.
 const SongRecButtonToggle = GObject.registerClass(
 class SongRecButtonToggle extends QuickMenuToggle {
     constructor(app) {
@@ -119,16 +118,14 @@ const SongRecButtonIndicator = GObject.registerClass(
 class SongRecButtonIndicator extends SystemIndicator {
     constructor(app) {
         super();
-        // In the top bar only while listening.
-        this._icon = this._addIndicator();
-        this._icon.icon_name = ICON;
-        this._icon.visible = false;
+        // A SystemIndicator starts hidden: setBusy() shows it in the top bar while listening.
+        this.add_child(new St.Icon({icon_name: ICON, style_class: 'system-status-icon'}));
         this.toggle = new SongRecButtonToggle(app);
         this.quickSettingsItems.push(this.toggle);
     }
 
     setBusy(busy) {
-        this._icon.visible = busy;
+        this.visible = busy;
         this.toggle.checked = busy;
     }
 

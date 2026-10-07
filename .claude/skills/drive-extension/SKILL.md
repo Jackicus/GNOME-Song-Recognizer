@@ -24,7 +24,7 @@ In zsh, `$G` does not word-split: write the command out.
 - **The pill**: "SongRec", bottom right of the toggles, about (1420, 276); clicking it
   starts and stops a recognition. **Its arrow**, about (1557, 276), opens the history
   below it; each song's × is at its right edge, about x 1532, and Settings is last.
-- **While listening** a note icon shows in the top bar, left of the network icon.
+- **While listening** its icon (a note) shows in the top bar, left of the network icon.
 
 ## Before clicking
 

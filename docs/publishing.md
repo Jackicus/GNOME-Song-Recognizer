@@ -16,7 +16,7 @@ It has not been uploaded yet.
 | Clipboard | Only the `copy` click action writes it, on the user's click; declared in the description; no shortcut. |
 | Network and telemetry | The description and README say that SongRec sends a fingerprint of the recording to Shazam, and that covers load from Apple's image servers. The `search` click action opens the user's own search link in the browser. Nothing else goes online; no telemetry. |
 | Logging | `console.error` on a failed recognition, and in the preferences when `pw-dump` fails. |
-| Private API | None: the pill is a `QuickMenuToggle` added with `addExternalIndicator()`. |
+| Private API | One reach, listed in `docs/private-api.md`: the history's scroll view is found by its `_delegate`, as the shell's own `PopupSubMenu` is. The pill is a `QuickMenuToggle` added with `addExternalIndicator()`. |
 | Trademarks | The icon (`audio-x-generic-symbolic`) carries no brand. "SongRec" in the name says whose program it runs (GPL-3.0 software, no trademark); the description says it is not affiliated with SongRec. "Shazam" names only the service whose page is opened. |
 | Licence | GPL-2.0-or-later; `LICENSE` is in the zip. |
 | The zip | `make pack`: `extension.js`, `prefs.js`, `lib/`, `stylesheet.css`, `metadata.json`, the schema XML and `LICENSE`; `make pack` fails if the zip holds anything else. |
