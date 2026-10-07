@@ -6,16 +6,17 @@ A GNOME Shell extension (UUID `songrec-button@jackicus`, `version-name` 0.1, she
 quick settings button that runs SongRec to recognize the song the computer is playing.
 
 One place: a pill in quick settings (`QuickMenuToggle`, added with `addExternalIndicator`).
-Clicking it listens, and clicking again stops; it is lit (`checked`) while listening, with a
-note icon in the top bar. A notification says what was found. The pill's menu holds the
+Clicking it listens, and clicking again stops; it is lit (`checked`) while listening, with its
+icon (`audio-x-generic-symbolic`) in the top bar. A notification says what was found. The pill's menu holds the
 history, each song with a button to remove it, and a Settings item.
 
 ## The rule the design hangs off
 
 **The extension holds no Shazam client, and claims none of the work.** It records with
 PipeWire's `pw-record` and hands the clip to the `songrec` command the user installed
-(SongRec, an unofficial Shazam client), which fingerprints it and asks Shazam. The name says whose work it runs; nothing says
-"Shazam" (Apple's trademark) but the click action that opens a song's Shazam page. Without
+(SongRec, an unofficial Shazam client), which fingerprints it and asks Shazam. The name says
+whose work it runs; nothing says "Shazam" (Apple's trademark) but the click action that
+opens a song's Shazam page. Without
 `songrec` on `PATH` the pill says to install it, and nothing is recorded. Its preferences
 mirror SongRec's own, where they apply to a one-shot button.
 
@@ -30,6 +31,7 @@ src/prefs.js            preferences (own process: Gtk and Adw; lists devices wit
 src/schemas/            org.gnome.shell.extensions.songrec-button
 src/stylesheet.css      the history's height, the song rows
 docs/publishing.md      how the extensions.gnome.org review is answered
+docs/private-api.md     the shell internals it relies on, and what breaks when they move
 scripts/ext.conf        what the kit's scripts need to know about this extension
 scripts/nested.d/       the stand-in songs and 'nested.sh shots' (the README's screenshots)
 ```
@@ -73,7 +75,8 @@ key, title, artist, cover, url, time).
   title up.
 - Covers are `Gio.FileIcon`s on the `https://` URL. St loads them through GVfs and caches
   them for the session; nothing is downloaded to disk.
-- Secondary text is dimmed with actor opacity (`DIM_OPACITY`), so it suits light and dark menus.
+- Secondary text is dimmed with actor opacity (`DIM_OPACITY`), so it suits light and dark
+  menus.
 - `metadata.json`'s description declares the clipboard and what goes to Shazam, as the
   review guidelines require; README's opening and Privacy sections say the same.
 
