@@ -60,6 +60,20 @@ class SongRecButtonSongItem extends PopupMenu.PopupBaseMenuItem {
     }
 });
 
+// Quick settings menus do not scroll, and a long history would outgrow the screen. The
+// section's actor is a scroll view around its box, as the shell's PopupSubMenu has.
+class SongRecButtonHistory extends PopupMenu.PopupMenuSection {
+    constructor() {
+        super();
+        this.actor = new St.ScrollView({
+            style_class: 'songrec-button-history vfade',
+            hscrollbar_policy: St.PolicyType.NEVER,
+            child: this.box,
+        });
+        this.actor._delegate = this;
+    }
+}
+
 // The pill: clicking it listens (and stops listening), its menu holds the history.
 const SongRecButtonToggle = GObject.registerClass(
 class SongRecButtonToggle extends QuickMenuToggle {
@@ -67,18 +81,13 @@ class SongRecButtonToggle extends QuickMenuToggle {
         super({title: 'SongRec', subtitle: READY, iconName: ICON, toggleMode: false});
         this._app = app;
         this.connect('clicked', () => app.toggle());
+        // The shell puts the menu in quick settings and never takes it out.
+        this.connect('destroy', () => this.menu.destroy());
 
         this.menu.setHeader(ICON, 'SongRec', 'History');
 
-        // A section's actor is a box, so it can scroll: a long history would outgrow the screen.
-        this._songs = new PopupMenu.PopupMenuSection();
+        this._songs = new SongRecButtonHistory();
         this.menu.addMenuItem(this._songs);
-        this.menu.box.remove_child(this._songs.actor);
-        this.menu.box.add_child(new St.ScrollView({
-            style_class: 'songrec-button-history vfade',
-            hscrollbar_policy: St.PolicyType.NEVER,
-            child: this._songs.actor,
-        }));
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         this.menu.addAction('Settings', () => {
