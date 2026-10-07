@@ -52,8 +52,9 @@ scripts/nested.d/       the stand-in songs and 'nested.sh shots' (the README's s
 - The pill's subtitle is the state: none when idle, "Listening…", "Searching…", then the
   song's title or what went wrong.
 - One `Gio.Cancellable` per recognition: clicking the pill again stops it, SIGINT to
-  `pw-record` and `force_exit()` to `songrec`. `disable()` cancels it and drops it, and the
-  recognition's `finally` touches the UI only while its cancellable is still the current one.
+  `pw-record` and `force_exit()` to `songrec`. `disable()` cancels it and drops it. Once it
+  is cancelled no failure is reported, whatever its error (deleting the clip can fail too),
+  and its `finally` touches the UI only while its cancellable is still the current one.
 - A result goes to the front of `history` (with `no-duplicates`, earlier entries of the same
   `key` go) and, with `notify` on, into a transient notification with the cover.
 
