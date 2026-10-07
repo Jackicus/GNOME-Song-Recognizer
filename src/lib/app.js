@@ -201,10 +201,11 @@ export class SongRecButtonApp {
         this._cancellable = cancellable;
         this._indicator.setBusy(true);
         this._listen(cancellable).catch(e => {
-            if (!(e instanceof GLib.Error && e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED))) {
-                console.error(`[SongRec Button] ${e.message}`);
-                this._report('Recognition Failed', e.message);
-            }
+            // Stopped, or disabled: whatever failed on the way out is not news.
+            if (cancellable.is_cancelled())
+                return;
+            console.error(`[SongRec Button] ${e.message}`);
+            this._report('Recognition Failed', e.message);
         }).finally(() => {
             // After disable() the cancellable has already been dropped.
             if (this._cancellable !== cancellable)
