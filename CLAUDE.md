@@ -40,7 +40,8 @@ scripts/nested.d/       the stand-in songs and 'nested.sh shots' (the README's s
 
 - `recognize()` records into a `Gio.File.new_tmp()` WAV (16 kHz mono) and deletes it after.
   `pw-record` has no length option: a timer sends it SIGINT, which makes it write the WAV
-  header. `device` picks the target: `''` the default output's sound
+  header. It exits 1 even then, so a failure is an exit before the stop, reported with the
+  last line of its stderr. `device` picks the target: `''` the default output's sound
   (`stream.capture.sink=true`), `microphone` the default input, `<sink>.monitor` that
   output's sound (`--target <sink>` plus the sink flag), anything else an input's node
   name. SongRec's own `current_device_name` uses the same `.monitor` naming.

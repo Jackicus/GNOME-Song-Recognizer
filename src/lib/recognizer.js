@@ -1,10 +1,13 @@
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 
-Gio._promisify(Gio.Subprocess.prototype, 'wait_async');
 Gio._promisify(Gio.Subprocess.prototype, 'communicate_utf8_async');
 
 const SIGINT = 2;
+
+function lastLine(text) {
+    return text.trim().split('\n').pop();
+}
 
 // pw-record has no length option: it is stopped with SIGINT, which makes it finish the WAV header.
 // `device` is '' for the default output's sound, 'microphone' for the default input,
@@ -17,7 +20,7 @@ async function record(path, seconds, device, cancellable) {
     if (device !== '' && device !== 'microphone')
         argv.push('--target', monitor ? device.slice(0, -'.monitor'.length) : device);
     argv.push(path);
-    const proc = Gio.Subprocess.new(argv, Gio.SubprocessFlags.STDERR_SILENCE);
+    const proc = Gio.Subprocess.new(argv, Gio.SubprocessFlags.STDERR_PIPE);
     const stop = () => proc.send_signal(SIGINT);
     let timer = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, seconds, () => {
         timer = 0;
@@ -25,10 +28,14 @@ async function record(path, seconds, device, cancellable) {
         return GLib.SOURCE_REMOVE;
     });
     const handler = cancellable.connect(stop);
-    await proc.wait_async(null);
+    const [, stderr] = await proc.communicate_utf8_async(null, null);
     cancellable.disconnect(handler);
-    if (timer)
+    // pw-record exits 1 even when SIGINT stops it, so a failure is an exit before the stop.
+    if (timer) {
         GLib.Source.remove(timer);
+        if (!cancellable.is_cancelled())
+            throw new Error(`pw-record: ${lastLine(stderr) || 'stopped early'}`);
+    }
 }
 
 async function match(path, cancellable) {
@@ -38,7 +45,7 @@ async function match(path, cancellable) {
     try {
         const [stdout, stderr] = await proc.communicate_utf8_async(null, cancellable);
         if (!proc.get_successful())
-            throw new Error(stderr.trim().split('\n').pop() || 'SongRec failed');
+            throw new Error(lastLine(stderr) || 'SongRec failed');
         return JSON.parse(stdout);
     } finally {
         cancellable.disconnect(handler);
