@@ -7,7 +7,7 @@ It has not been uploaded yet.
 
 | Guideline | How it is met |
 |---|---|
-| Nothing before `enable()`; `disable()` undoes it | `extension.js` makes the app in `enable()`; `SongRecButtonApp.disable()` disconnects the settings, cancels the recognition, destroys the notification source, the quick settings toggle and its indicator. Module scope holds constants and two `Gio._promisify` calls. |
+| Nothing before `enable()`; `disable()` undoes it | `extension.js` makes the app in `enable()`; `SongRecButtonApp.disable()` disconnects the settings, cancels the recognition, destroys the notification source, the quick settings toggle (which destroys its menu) and its indicator. Module scope holds constants and two `Gio._promisify` calls. |
 | Signals and sources | Settings signals go through `connectObject` and are taken back in `disable()` or with the view's destruction. The one timer (`record()`) is removed when the recording ends, which the cancellable forces. |
 | Imports | `prefs.js` imports Gio, GLib, Gtk and Adw, and runs `pw-dump` once to list audio devices; `lib/recognizer.js` Gio and GLib; the shell side never imports Gtk or Adw. |
 | `metadata.json` | `uuid` `songrec-button@jackicus`, `shell-version` `["50"]` (run on it), `url` the repository, `settings-schema` used through `getSettings()`, no `version`, no `session-modes`. |

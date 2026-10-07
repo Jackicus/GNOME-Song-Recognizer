@@ -64,9 +64,11 @@ key, title, artist, cover, url, time).
 
 ## Design notes
 
-- The history scrolls: the menu section's box is moved into an `St.ScrollView` capped by
-  `max-height`, since the shell's quick settings menus do not scroll and 50 songs would
-  outgrow the screen.
+- The history scrolls: its section's actor is an `St.ScrollView` around the section's box
+  (as the shell's `PopupSubMenu` has), capped by `max-height`, since the shell's quick
+  settings menus do not scroll and 50 songs would outgrow the screen.
+- The toggle destroys its menu with itself: the shell puts a toggle's menu in quick
+  settings' overlay and never takes it out.
 - The idle subtitle is `null`, not `''`: an empty string keeps the line and pushes the
   title up.
 - Covers are `Gio.FileIcon`s on the `https://` URL. St loads them through GVfs and caches
