@@ -182,10 +182,15 @@ export class SongRecButtonApp {
             St.Clipboard.get_default().set_text(St.ClipboardType.CLIPBOARD, name);
             return;
         }
-        const uri = action === 'search'
-            ? this.settings.get_string('search-url') + GLib.uri_escape_string(`${song.title} ${song.artist}`, null, false)
-            : song.url;
-        Gio.AppInfo.launch_default_for_uri(uri, global.create_app_launch_context(0, -1));
+        // A match Shazam gave no page for is searched instead.
+        const uri = action === 'open' && song.url
+            ? song.url
+            : this.settings.get_string('search-url') + GLib.uri_escape_string(`${song.title} ${song.artist}`, null, false);
+        try {
+            Gio.AppInfo.launch_default_for_uri(uri, global.create_app_launch_context(0, -1));
+        } catch (e) {
+            console.error(`[SongRec Button] ${e.message}`);
+        }
     }
 
     toggle() {

@@ -59,8 +59,9 @@ Open them with `gnome-extensions prefs songrec-button@jackicus`, or from the Ext
   computer is playing; **Microphone** is your default microphone; or pick any output or input.
 - **Listening Time**: how many seconds it records, 10 by default.
 - **Notifications**: say what was found in a notification.
-- **Clicking a Song**: open its Shazam page, search for it with the **Search Link**
-  (YouTube by default, as in SongRec), or copy its title and artist.
+- **Clicking a Song**: open its Shazam page (or search for it, when Shazam gave none),
+  search for it with the **Search Link** (YouTube by default, as in SongRec), or copy its
+  title and artist.
 - **No Duplicates**: a song found again moves to the top of the history instead of being
   added twice.
 - **Songs Kept** and **Clear History**.
