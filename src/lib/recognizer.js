@@ -21,20 +21,24 @@ async function record(path, seconds, device, cancellable) {
         argv.push('--target', monitor ? device.slice(0, -'.monitor'.length) : device);
     argv.push(path);
     const proc = Gio.Subprocess.new(argv, Gio.SubprocessFlags.STDERR_PIPE);
-    const stop = () => proc.send_signal(SIGINT);
     let timer = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, seconds, () => {
         timer = 0;
-        stop();
+        proc.send_signal(SIGINT);
         return GLib.SOURCE_REMOVE;
     });
-    const handler = cancellable.connect(stop);
+    // Cancelling (disable() included) removes the timer at once, not when pw-record exits.
+    const handler = cancellable.connect(() => {
+        if (timer)
+            GLib.Source.remove(timer);
+        timer = 0;
+        proc.send_signal(SIGINT);
+    });
     const [, stderr] = await proc.communicate_utf8_async(null, null);
     cancellable.disconnect(handler);
     // pw-record exits 1 even when SIGINT stops it, so a failure is an exit before the stop.
     if (timer) {
         GLib.Source.remove(timer);
-        if (!cancellable.is_cancelled())
-            throw new Error(`pw-record: ${lastLine(stderr) || 'stopped early'}`);
+        throw new Error(`pw-record: ${lastLine(stderr) || 'stopped early'}`);
     }
 }
 

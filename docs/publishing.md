@@ -2,15 +2,15 @@
 
 How SongRec Button answers the extensions.gnome.org review, against
 https://gjs.guide/extensions/review-guidelines/review-guidelines.html and
-https://gjs.guide/extensions/review-guidelines/best-practices.html, read 2026-10-07.
+https://gjs.guide/extensions/review-guidelines/best-practices.html, read 2026-10-08.
 It has not been uploaded yet.
 
 | Guideline | How it is met |
 |---|---|
 | Nothing before `enable()`; `disable()` undoes it | `extension.js` makes the app in `enable()`; `SongRecButtonApp.disable()` disconnects the settings, cancels the recognition, destroys the notification source, the quick settings toggle (which destroys its menu) and its indicator. Module scope holds constants, a helper or two, and one `Gio._promisify` call in each of `lib/recognizer.js` and `prefs.js`. |
-| Signals and sources | Settings signals go through `connectObject` and are taken back in `disable()` or with the view's destruction. The one timer (`record()`) is removed when the recording ends, which the cancellable forces. |
+| Signals and sources | Settings signals go through `connectObject` and are taken back in `disable()` or with the view's destruction. The one timer (`record()`) is removed when the recording ends, and at once when the recognition is cancelled, so `disable()` leaves no source behind. |
 | Imports | `prefs.js` imports Gio, GLib, Gtk and Adw, and runs `pw-dump` once to list audio devices; `lib/recognizer.js` Gio and GLib; the shell side never imports Gtk or Adw. |
-| `metadata.json` | `uuid` `songrec-button@jackicus`, `shell-version` `["50"]` (run on it), `url` the repository, `settings-schema` used through `getSettings()`, no `version`, no `session-modes`. |
+| `metadata.json` | `uuid` `songrec-button@jackicus`, `shell-version` `["50"]` (run on it), `url` the repository, `settings-schema` used through `getSettings()` (the id appears nowhere in the code), no `version`, no `session-modes`. |
 | Schema | `org.gnome.shell.extensions.songrec-button` at `/org/gnome/shell/extensions/songrec-button/`, shipped as `schemas/<id>.gschema.xml`; `make pack` leaves `gschemas.compiled` out. |
 | Subprocesses | No binary ships. `pw-record` (PipeWire) and the user-installed `songrec` are spawned per recognition and stopped with the recognition (SIGINT, `force_exit()`); neither is privileged. A `pw-record` that exits before it is stopped is a failure, reported with its stderr. SongRec has no D-Bus interface, so it is run as a command. |
 | Clipboard | Only the `copy` click action writes it, on the user's click; declared in the description; no shortcut. |
