@@ -172,7 +172,7 @@ export class SongRecButtonApp {
     }
 
     remove(song) {
-        this._setHistory(this.songs().filter(s => s.time !== song.time));
+        this._setHistory(this.songs().filter(s => s.key !== song.key || s.time !== song.time));
     }
 
     activate(song) {
