@@ -6,9 +6,10 @@ A GNOME Shell extension (UUID `songrec-button@jackicus`, `version-name` 0.1, she
 quick settings button that runs SongRec to recognize the song the computer is playing.
 
 One place: a pill in quick settings (`QuickMenuToggle`, added with `addExternalIndicator`).
-Clicking it listens, and clicking again stops; it is lit (`checked`) while listening, with its
-icon (`audio-x-generic-symbolic`) in the top bar. A notification says what was found. The pill's menu holds the
-history, each song with a button to remove it, and a Settings item.
+Clicking it listens, and clicking again stops; it is lit (`checked`) while listening, with
+its icon (`audio-x-generic-symbolic`) in the top bar. A notification says what was found.
+The pill's menu holds the history, each song with a button to remove it, and a Settings
+item.
 
 ## The rule the design hangs off
 
@@ -84,15 +85,8 @@ key, title, artist, cover, url, time).
 
 ## Verifying
 
-`make check` (ESLint, the schema, and `size`; CI runs it). Anything
-visible is seen in the nested shell (`gnome-ext:nested-shell`, then this repository's
-`drive-extension` skill, which has a stand-in `pw-record` for a real match without playing
-sound on the machine).
-
-## Gotchas
-
-- `make link` links only the files `src/` has when it runs: after adding one (the
-  stylesheet), `./scripts/dev.sh link --no-enable` again.
-- A recognition sends a fingerprint of what the machine is playing to Shazam: in the nested
-  shell too. With `click-action` `open`, activating a song opens a browser on the real
-  desktop; set it to `copy` in the nested settings before clicking songs.
+`make check` is ESLint, the schema and `size`: there are no checks of its own
+(`EXT_CHECKS` is empty). In the nested shell a recognition is real (it reaches Shazam) and
+`click-action` `open` opens a browser on the real desktop: the `drive-extension` skill's
+"Before clicking" comes first, and it has stand-in `pw-record` and `songrec` for a match
+without sound.
