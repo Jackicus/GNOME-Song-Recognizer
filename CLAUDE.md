@@ -62,10 +62,10 @@ scripts/nested.d/       the stand-in songs and 'nested.sh shots' (the README's s
 ## Settings
 
 `device` (`''`), `listen-seconds` (10, 4–20), `notify` (true), `no-duplicates` (false),
-`click-action` (`open` the Shazam page, `search` the `search-url` with "title artist", or
-`copy` "title – artist" to the clipboard), `search-url` (YouTube's search, as SongRec's),
-`history-size` (50, 1–500; lowering it trims at once), `history` (`aa{ss}`, newest first:
-key, title, artist, cover, url, time).
+`click-action` (`open` the Shazam page, or the search when there is none; `search` the
+`search-url` with "title artist"; `copy` "title – artist" to the clipboard), `search-url`
+(YouTube's search, as SongRec's), `history-size` (50, 1–500; lowering it trims at once),
+`history` (`aa{ss}`, newest first: key, title, artist, cover, url, time).
 
 ## Design notes
 
