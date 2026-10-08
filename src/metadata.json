@@ -3,7 +3,9 @@
   "name": "SongRec Button",
   "description": "A quick settings button that runs SongRec to recognize the song your computer is playing.\n\nNothing is recorded until you press the button. Then it records a few seconds of your computer's sound (or the input you choose) with PipeWire's pw-record and runs the songrec command you installed, which sends a fingerprint of that sound to Shazam's servers and returns the song. A notification says what was found, and the button's menu keeps a history, in the extension's settings. Clicking a song opens its Shazam page, opens a search for it, or, if you choose, copies its title and artist to the clipboard.\n\nNot affiliated with SongRec, Shazam or Apple. SongRec is an unofficial Shazam client.",
   "settings-schema": "org.gnome.shell.extensions.songrec-button",
-  "shell-version": [ "50" ],
+  "shell-version": [
+    "50"
+  ],
   "url": "https://github.com/Jackicus/GNOME-SongRec-Button",
-  "version-name": "0.1"
+  "version-name": "0.1.1"
 }
